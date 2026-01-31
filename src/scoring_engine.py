@@ -21,21 +21,10 @@ def compute_wallet_scores(G, illicit_seeds):
         
     Returns:
         Dictionary mapping wallet addresses to score components
-        {
-            wallet: {
-                'fan_out': int,
-                'fan_in': int,
-                'peeling': int,
-                'proximity': int,
-                'smurf': float,
-                'total': float
-            }
-        }
     """
     wallet_scores = {}
-    
     all_wallets = set(G.nodes())
-    
+
     for wallet in all_wallets:
         fan_out = detect_fan_out(G, wallet)
         fan_in = detect_fan_in(G, wallet)
@@ -53,7 +42,7 @@ def compute_wallet_scores(G, illicit_seeds):
             proximity * 3 +
             smurf_score * 2    # smurfing is strong signal
         )
-        
+
         wallet_scores[wallet] = {
             'fan_out': fan_out,
             'fan_in': fan_in,
@@ -62,8 +51,9 @@ def compute_wallet_scores(G, illicit_seeds):
             'smurf': smurf_score,
             'total': total_score
         }
-    
+
     return wallet_scores
+
 
 def smurfing_score(features):
     """
