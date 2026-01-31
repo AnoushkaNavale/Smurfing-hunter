@@ -1,0 +1,4 @@
+echo pandas > requirements.txt
+echo networkx >> requirements.txt
+echo pyvis >> requirements.txt
+echo numpy >> requirements.txt
