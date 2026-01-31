@@ -128,59 +128,121 @@ def detect_fan_in(G, wallet, min_degree=5, ancestor_depth=2):
     return 0
 
 
-def detect_peeling_chains(G, wallet, min_length=4):
+def detect_peeling_chains(
+    G,
+    wallet,
+    min_length=4,
+    min_peel_ratio=0.003,
+    max_peel_ratio=0.05,
+    min_delay_minutes=10,
+    max_delay_hours=72,
+    peel_time_window_minutes=60,
+):
     """
-    Detect peeling chain: long path with decreasing amounts (gas fee obfuscation)
+    Detect peeling chains where small amounts are peeled off at each hop and
+    time delays are introduced between hops to hide the trail.
     
     Args:
         G: NetworkX DiGraph
         wallet: Starting wallet address
-        min_length: Minimum chain length to consider
+        min_length: Minimum chain length to consider (nodes in the chain)
+        min_peel_ratio: Minimum peel-to-main amount ratio per hop
+        max_peel_ratio: Maximum peel-to-main amount ratio per hop
+        min_delay_minutes: Minimum delay between main transfers
+        max_delay_hours: Maximum delay between main transfers
+        peel_time_window_minutes: Max time between peel tx and main tx
         
     Returns:
         Count of peeling chains detected (capped at 10)
     """
     if wallet not in G:
         return 0
-    
+
     peeling_chains = 0
-    
-    def explore_path(current, path, amounts):
+    min_delay_hours = min_delay_minutes / 60.0
+    peel_window_seconds = peel_time_window_minutes * 60
+
+    def edge_avg_amount(edge_data):
+        count = edge_data.get("count", 0) or 1
+        return edge_data.get("total_amount", 0) / count
+
+    def select_edge_time(edge_data, after_time):
+        timestamps = edge_data.get("timestamps", [])
+        if not timestamps:
+            return None
+        sorted_times = sorted(timestamps)
+        if after_time is None:
+            return sorted_times[0]
+        for ts in sorted_times:
+            if ts > after_time:
+                return ts
+        return None
+
+    def has_peel_edge(node, main_neighbor, main_amount, main_time):
+        if main_amount <= 0:
+            return False
+        for peel_neighbor in G.successors(node):
+            if peel_neighbor == main_neighbor:
+                continue
+            peel_data = G[node][peel_neighbor]
+            peel_amount = edge_avg_amount(peel_data)
+            ratio = peel_amount / main_amount
+            if ratio < min_peel_ratio or ratio > max_peel_ratio:
+                continue
+            if main_time is None:
+                return True
+            for peel_time in peel_data.get("timestamps", []):
+                if abs((peel_time - main_time).total_seconds()) <= peel_window_seconds:
+                    return True
+        return False
+
+    def explore_path(current, path, amounts, times):
         nonlocal peeling_chains
-        
+
         if len(path) >= min_length:
             is_decreasing = all(
-                amounts[i] > amounts[i+1] 
-                for i in range(len(amounts)-1)
+                amounts[i] > amounts[i + 1] for i in range(len(amounts) - 1)
             )
-            
             decay_rate = amounts[-1] / amounts[0] if amounts[0] > 0 else 0
-            if is_decreasing and 0.5 <= decay_rate <= 0.95:
+            if is_decreasing and 0.5 <= decay_rate <= 0.98:
                 peeling_chains += 1
                 return
-        
+
         if len(path) >= min_length + 2:
             return
-        
-        if current not in G:
-            return
-        
+
+        last_amount = amounts[-1] if amounts else None
+        last_time = times[-1] if times else None
+
         for neighbor in G.successors(current):
             if neighbor in path:
                 continue
-            
+
             edge_data = G[current][neighbor]
-            avg_amount = edge_data['total_amount'] / edge_data['count']
-            
-            if not amounts or avg_amount < amounts[-1]:
-                explore_path(
-                    neighbor, 
-                    path + [neighbor], 
-                    amounts + [avg_amount]
-                )
-    
-    explore_path(wallet, [wallet], [])
-    
+            main_amount = edge_avg_amount(edge_data)
+            if last_amount is not None and main_amount >= last_amount:
+                continue
+
+            main_time = select_edge_time(edge_data, last_time)
+            if last_time is not None:
+                if main_time is None:
+                    continue
+                delay_hours = (main_time - last_time).total_seconds() / 3600
+                if delay_hours < min_delay_hours or delay_hours > max_delay_hours:
+                    continue
+
+            if not has_peel_edge(current, neighbor, main_amount, main_time):
+                continue
+
+            explore_path(
+                neighbor,
+                path + [neighbor],
+                amounts + [main_amount],
+                times + [main_time] if main_time else times,
+            )
+
+    explore_path(wallet, [wallet], [], [])
+
     return min(peeling_chains, 10)
 
 

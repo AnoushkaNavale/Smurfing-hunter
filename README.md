@@ -90,8 +90,9 @@ python main.py
 
 ### Peeling Chain Detection
 - Identifies transaction chains of length ≥4
-- Detects monotonically decreasing amounts
-- Simulates gas fee obfuscation
+- Requires a small "peel" transfer at each hop (gas-fee pattern)
+- Detects monotonically decreasing main-transfer amounts
+- Checks time delays between hops to hide the trail
 - Score: 0-10 based on chain count
 
 ### Proximity Score
@@ -111,7 +112,9 @@ Total Score = (fan_out × 2) + (fan_in × 2) + (peeling × 1.5) + (proximity × 
 
 - Fan-out: ≥5 recipients, ≤1 hour window, ±15% amount similarity
 - Fan-in: ≥5 senders, common ancestors within depth 2
-- Peeling: ≥4 hops, 50-95% decay rate
+- Peeling: ≥4 hops, 50-98% decay rate
+- Peeling peel ratio: 0.3-5% of main transfer
+- Peeling delay window: 10 minutes to 72 hours between hops
 - Proximity: BFS depth = 3
 
 ## Limitations
