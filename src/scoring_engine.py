@@ -26,11 +26,31 @@ def _normalize_scores(values, scale_max=10):
     }
 
 
+def _compute_weighted_degree_scores(G):
+    values = {}
+    for node in G.nodes():
+        total = 0.0
+        for _, _, data in G.in_edges(node, data=True):
+            total += data.get("total_amount", 0)
+        for _, _, data in G.out_edges(node, data=True):
+            total += data.get("total_amount", 0)
+        values[node] = total
+    return _normalize_scores(values, scale_max=10)
+
+
 def _compute_centrality_scores(G):
+    try:
+        import scipy  # noqa: F401
+    except Exception:
+        return _compute_weighted_degree_scores(G)
+
     try:
         centrality = nx.pagerank(G, weight="total_amount")
     except Exception:
-        centrality = nx.pagerank(G)
+        try:
+            centrality = nx.pagerank(G)
+        except Exception:
+            return _compute_weighted_degree_scores(G)
     return _normalize_scores(centrality, scale_max=10)
 
 
