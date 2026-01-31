@@ -52,5 +52,7 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
         
         net.add_edge(src, dst, width=width, title=title, arrows='to')
     
-    net.show(output_file)
+    net.write_html(output_file)
     print(f"✅ Visualization saved to {output_file}")
+    import webbrowser
+    webbrowser.open(output_file)
