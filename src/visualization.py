@@ -7,7 +7,13 @@ from pyvis.network import Network
 import numpy as np
 
 
-def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_file='laundering_graph.html'):
+def visualize_laundering_graph(
+    subgraph,
+    wallet_scores,
+    illicit_seeds,
+    output_file='laundering_graph.html',
+    open_browser=True,
+):
     """
     Create interactive PyVis visualization
     
@@ -76,9 +82,10 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
     # Avoid pyvis .show() notebook template issues by writing HTML directly.
     net.write_html(output_file, open_browser=False, notebook=False)
     print(f"✅ Visualization saved to {output_file}")
-    try:
-        import webbrowser
-        webbrowser.open(output_file)
-    except Exception:
-        # Non-fatal: if no browser is available, the file is still saved.
-        pass
+    if open_browser:
+        try:
+            import webbrowser
+            webbrowser.open(output_file)
+        except Exception:
+            # Non-fatal: if no browser is available, the file is still saved.
+            pass

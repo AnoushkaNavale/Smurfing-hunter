@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smurfing-hunter</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Smurfing-hunter</h1>
+        <p>Upload a transactions CSV and optionally an illicit wallet list.</p>
+      </header>
+
+      <section class="panel">
+        <form id="analysisForm">
+          <label>
+            Transactions CSV (required)
+            <input type="file" id="transactions" accept=".csv" required />
+          </label>
+          <label>
+            Illicit wallets CSV (optional)
+            <input type="file" id="illicitWallets" accept=".csv" />
+          </label>
+          <button type="submit">Run Analysis</button>
+        </form>
+        <p id="status" class="status"></p>
+        <div id="stats" class="stats"></div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Laundering Graph</h2>
+          <iframe id="graphFrame" title="Laundering graph"></iframe>
+        </div>
+        <div class="panel">
+          <div class="report-header">
+            <h2>Suspicion Report</h2>
+            <a id="reportDownload" class="link" href="#" download hidden>Download CSV</a>
+          </div>
+          <div id="reportTable" class="table"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -71,6 +71,30 @@ Run the system:
 python main.py
 ```
 
+Generate a synthetic dataset (optional):
+```bash
+python data_generator.py
+```
+
+## Web App (Frontend + Backend)
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+Start the backend API (serves the frontend too):
+```bash
+uvicorn backend.app:app --reload
+```
+
+Open the UI:
+```
+http://localhost:8000
+```
+
+Upload a transactions CSV (required) and an illicit wallets CSV (optional).
+
 ## Outputs
 
 1. **laundering_graph.html**: Interactive visualization
