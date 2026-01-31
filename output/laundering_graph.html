@@ -1,0 +1,163 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#FF0000", "id": "0xABC", "label": "0xABC", "shape": "dot", "size": 40, "title": "ILLICIT SEED: 0xABC"}, {"color": "#FF6600", "id": "0x001", "label": "0x001", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x001\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x002", "label": "0x002", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x002\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x003", "label": "0x003", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x003\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x004", "label": "0x004", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x004\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x005", "label": "0x005", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x005\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x006", "label": "0x006", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x006\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x007", "label": "0x007", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x007\u003cbr\u003eScore: 45.7"}, {"color": "#FFA500", "id": "0x008", "label": "0x008", "shape": "dot", "size": 25, "title": "MEDIUM RISK: 0x008\u003cbr\u003eScore: 10.5"}, {"color": "#FF0000", "id": "0xDEF", "label": "0xDEF", "shape": "dot", "size": 40, "title": "ILLICIT SEED: 0xDEF"}, {"color": "#FF6600", "id": "0x020", "label": "0x020", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x020\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x021", "label": "0x021", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x021\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x022", "label": "0x022", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x022\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x023", "label": "0x023", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x023\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x024", "label": "0x024", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x024\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x025", "label": "0x025", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x025\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x026", "label": "0x026", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x026\u003cbr\u003eScore: 24.0"}, {"color": "#FF6600", "id": "0x030", "label": "0x030", "shape": "dot", "size": 30, "title": "HIGH RISK: 0x030\u003cbr\u003eScore: 36.5"}, {"color": "#FFA500", "id": "0x031", "label": "0x031", "shape": "dot", "size": 25, "title": "MEDIUM RISK: 0x031\u003cbr\u003eScore: 10.5"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x001\u003cbr\u003eAmount: 100.0000\u003cbr\u003eTxs: 1", "to": "0x001", "width": 5.008642747565285}, {"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x002\u003cbr\u003eAmount: 98.5000\u003cbr\u003eTxs: 1", "to": "0x002", "width": 4.995646161491451}, {"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x003\u003cbr\u003eAmount: 99.2000\u003cbr\u003eTxs: 1", "to": "0x003", "width": 5.001735443062453}, {"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x004\u003cbr\u003eAmount: 97.8000\u003cbr\u003eTxs: 1", "to": "0x004", "width": 4.989513889175257}, {"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x005\u003cbr\u003eAmount: 101.3000\u003cbr\u003eTxs: 1", "to": "0x005", "width": 5.01975126742432}, {"arrows": "to", "from": "0xABC", "title": "0xABC \u2192 0x006\u003cbr\u003eAmount: 100.5000\u003cbr\u003eTxs: 1", "to": "0x006", "width": 5.0129320844984635}, {"arrows": "to", "from": "0x001", "title": "0x001 \u2192 0x007\u003cbr\u003eAmount: 95.0000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.964542466079137}, {"arrows": "to", "from": "0x002", "title": "0x002 \u2192 0x007\u003cbr\u003eAmount: 93.5000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.950863617018526}, {"arrows": "to", "from": "0x003", "title": "0x003 \u2192 0x007\u003cbr\u003eAmount: 94.2000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.957273896768949}, {"arrows": "to", "from": "0x004", "title": "0x004 \u2192 0x007\u003cbr\u003eAmount: 92.8000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.944405676758128}, {"arrows": "to", "from": "0x005", "title": "0x005 \u2192 0x007\u003cbr\u003eAmount: 96.3000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.976225680536704}, {"arrows": "to", "from": "0x006", "title": "0x006 \u2192 0x007\u003cbr\u003eAmount: 95.5000\u003cbr\u003eTxs: 1", "to": "0x007", "width": 4.969054626687585}, {"arrows": "to", "from": "0x007", "title": "0x007 \u2192 0x008\u003cbr\u003eAmount: 570.0000\u003cbr\u003eTxs: 1", "to": "0x008", "width": 6.513272216491696}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x020\u003cbr\u003eAmount: 200.0000\u003cbr\u003eTxs: 1", "to": "0x020", "width": 5.606392114840978}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x021\u003cbr\u003eAmount: 195.0000\u003cbr\u003eTxs: 1", "to": "0x021", "width": 5.584512142712952}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x022\u003cbr\u003eAmount: 198.0000\u003cbr\u003eTxs: 1", "to": "0x022", "width": 5.597706152819414}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x023\u003cbr\u003eAmount: 202.0000\u003cbr\u003eTxs: 1", "to": "0x023", "width": 5.614992075826426}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x024\u003cbr\u003eAmount: 197.0000\u003cbr\u003eTxs: 1", "to": "0x024", "width": 5.593330380523062}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x025\u003cbr\u003eAmount: 199.0000\u003cbr\u003eTxs: 1", "to": "0x025", "width": 5.6020599913279625}, {"arrows": "to", "from": "0xDEF", "title": "0xDEF \u2192 0x026\u003cbr\u003eAmount: 201.0000\u003cbr\u003eTxs: 1", "to": "0x026", "width": 5.610702738893248}, {"arrows": "to", "from": "0x020", "title": "0x020 \u2192 0x030\u003cbr\u003eAmount: 190.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.562066734495455}, {"arrows": "to", "from": "0x021", "title": "0x021 \u2192 0x030\u003cbr\u003eAmount: 185.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.539025888435833}, {"arrows": "to", "from": "0x022", "title": "0x022 \u2192 0x030\u003cbr\u003eAmount: 188.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.552923608346489}, {"arrows": "to", "from": "0x023", "title": "0x023 \u2192 0x030\u003cbr\u003eAmount: 192.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.571114618015548}, {"arrows": "to", "from": "0x024", "title": "0x024 \u2192 0x030\u003cbr\u003eAmount: 187.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.54831569852736}, {"arrows": "to", "from": "0x025", "title": "0x025 \u2192 0x030\u003cbr\u003eAmount: 189.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.557507201905658}, {"arrows": "to", "from": "0x026", "title": "0x026 \u2192 0x030\u003cbr\u003eAmount: 191.0000\u003cbr\u003eTxs: 1", "to": "0x030", "width": 5.566602457407099}, {"arrows": "to", "from": "0x030", "title": "0x030 \u2192 0x031\u003cbr\u003eAmount: 1322.0000\u003cbr\u003eTxs: 1", "to": "0x031", "width": 7.2431196883750015}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "barnesHut": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.3,
+            "damping": 0.09,
+            "gravitationalConstant": -8000,
+            "springConstant": 0.001,
+            "springLength": 200
+        },
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

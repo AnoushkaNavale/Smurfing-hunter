@@ -2,11 +2,11 @@
 Visualization Module
 Creates interactive PyVis graph visualizations
 """
-
+ 
 from pyvis.network import Network
 import numpy as np
-
-
+ 
+ 
 def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_file='laundering_graph.html'):
     """
     Create interactive PyVis visualization
@@ -52,5 +52,12 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
         
         net.add_edge(src, dst, width=width, title=title, arrows='to')
     
-    net.show(output_file)
+    # Avoid pyvis .show() notebook template issues by writing HTML directly.
+    net.write_html(output_file, open_browser=False, notebook=False)
     print(f"✅ Visualization saved to {output_file}")
+    try:
+        import webbrowser
+        webbrowser.open(output_file)
+    except Exception:
+        # Non-fatal: if no browser is available, the file is still saved.
+        pass

@@ -230,3 +230,77 @@ def calculate_proximity_score(G, wallet, illicit_seeds, max_depth=3):
         return 3
     else:
         return max(0, 10 - min_distance)
+    
+def detect_smurfing(G, wallet, low_amount_threshold=100, time_window_seconds=3600):
+    """
+    Detect smurfing pattern: many small transactions spread over short time
+    
+    Args:
+        G: NetworkX DiGraph
+        wallet: Wallet address to analyze
+        low_amount_threshold: Max amount considered 'small'
+        time_window_seconds: Time window to group transactions for burstiness
+    
+    Returns:
+        Dictionary of smurfing features or None if no suspicious activity:
+        {
+            "in_degree": int,           # number of incoming transactions
+            "unique_senders": int,      # unique senders count
+            "low_amount_ratio": float,  # ratio of small transactions
+            "time_burstiness": float    # measure of transaction bursts
+        }
+    """
+    if wallet not in G:
+        return None
+    
+    in_edges = list(G.in_edges(wallet, data=True))
+    if not in_edges:
+        return None
+    
+    # Count incoming tx timestamps and amounts
+    all_timestamps = []
+    all_amounts = []
+    senders = set()
+    
+    for src, _, data in in_edges:
+        senders.add(src)
+        amounts = data.get('amounts', [])
+        timestamps = data.get('timestamps', [])
+        
+        all_amounts.extend(amounts)
+        all_timestamps.extend(timestamps)
+    
+    if not all_amounts or not all_timestamps:
+        return None
+    
+    # Feature 1: in_degree (total incoming tx count)
+    in_degree = len(all_amounts)
+    
+    # Feature 2: unique_senders
+    unique_senders = len(senders)
+    
+    # Feature 3: low_amount_ratio
+    low_amount_count = sum(1 for amt in all_amounts if amt <= low_amount_threshold)
+    low_amount_ratio = low_amount_count / in_degree if in_degree > 0 else 0
+    
+    # Feature 4: time_burstiness - measure how clustered tx timestamps are
+    # Calculate differences between sorted timestamps in seconds
+    sorted_ts = sorted(all_timestamps)
+    if len(sorted_ts) < 2:
+        time_burstiness = 0
+    else:
+        intervals = [(sorted_ts[i+1] - sorted_ts[i]).total_seconds() for i in range(len(sorted_ts)-1)]
+        # Count how many intervals are within time_window_seconds
+        bursts = sum(1 for interval in intervals if interval <= time_window_seconds)
+        time_burstiness = bursts / len(intervals) if intervals else 0
+    
+    # Decide if smurfing is likely: require some minimal activity + features
+    if in_degree < 5 or unique_senders < 2 or low_amount_ratio < 0.5:
+        return None
+    
+    return {
+        "in_degree": in_degree,
+        "unique_senders": unique_senders,
+        "low_amount_ratio": low_amount_ratio,
+        "time_burstiness": time_burstiness
+    }

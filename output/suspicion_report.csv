@@ -1,0 +1,21 @@
+Wallet,Score,Explanation,Is_Seed
+0x007,45.7,Fan-in aggregation pattern (score: 7) | Peeling chain detected (score: 1) | Close proximity to illicit wallets (score: 5),
+0xDEF,44.0,Fan-out to multiple wallets detected (score: 7) | Direct connection to illicit wallet,🔴 ILLICIT
+0xABC,42.0,Fan-out to multiple wallets detected (score: 6) | Direct connection to illicit wallet,🔴 ILLICIT
+0x030,36.5,Fan-in aggregation pattern (score: 10) | Peeling chain detected (score: 1) | Close proximity to illicit wallets (score: 5),
+0x001,24.0,Direct connection to illicit wallet,
+0x023,24.0,Direct connection to illicit wallet,
+0x026,24.0,Direct connection to illicit wallet,
+0x022,24.0,Direct connection to illicit wallet,
+0x005,24.0,Direct connection to illicit wallet,
+0x025,24.0,Direct connection to illicit wallet,
+0x004,24.0,Direct connection to illicit wallet,
+0x003,24.0,Direct connection to illicit wallet,
+0x020,24.0,Direct connection to illicit wallet,
+0x002,24.0,Direct connection to illicit wallet,
+0x006,24.0,Direct connection to illicit wallet,
+0x021,24.0,Direct connection to illicit wallet,
+0x024,24.0,Direct connection to illicit wallet,
+0x009,21.0,Peeling chain detected (score: 2) | Close proximity to illicit wallets (score: 6),
+0x032,19.5,Peeling chain detected (score: 1) | Close proximity to illicit wallets (score: 6),
+0x042,18.0,Close proximity to illicit wallets (score: 6),
