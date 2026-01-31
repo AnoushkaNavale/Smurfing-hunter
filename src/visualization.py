@@ -52,7 +52,12 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
         
         net.add_edge(src, dst, width=width, title=title, arrows='to')
     
-    net.write_html(output_file)
+    # Avoid pyvis .show() notebook template issues by writing HTML directly.
+    net.write_html(output_file, open_browser=False, notebook=False)
     print(f"✅ Visualization saved to {output_file}")
-    import webbrowser
-    webbrowser.open(output_file)
+    try:
+        import webbrowser
+        webbrowser.open(output_file)
+    except Exception:
+        # Non-fatal: if no browser is available, the file is still saved.
+        pass
