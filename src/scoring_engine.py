@@ -7,8 +7,10 @@ import networkx as nx
 
 from patterndetectors import (
     calculate_proximity_score,
+    detect_cyclic_patterns,
     detect_fan_in,
     detect_fan_out,
+    detect_gather_scatter,
     detect_peeling_chains,
 )
 
@@ -68,6 +70,8 @@ def compute_wallet_scores(G, illicit_seeds):
             wallet: {
                 'fan_out': int,
                 'fan_in': int,
+                'gather_scatter': int,
+                'cyclic': int,
                 'peeling': int,
                 'proximity': int,
                 'centrality': float,
@@ -84,24 +88,22 @@ def compute_wallet_scores(G, illicit_seeds):
         fan_out = detect_fan_out(G, wallet)
         fan_in = detect_fan_in(G, wallet)
         peeling = detect_peeling_chains(G, wallet)
+        gather_scatter = detect_gather_scatter(G, wallet)
+        cyclic = detect_cyclic_patterns(G, wallet)
         proximity = calculate_proximity_score(G, wallet, illicit_seeds)
         centrality = centrality_scores.get(wallet, 0)
 
-        total_score = (
-            fan_out * 2
-            + fan_in * 2
-            + peeling * 1.5
-            + proximity * 3
-            + centrality * 2
-        )
+        total_score = (centrality * 2) + (proximity * 3)
 
         wallet_scores[wallet] = {
             'fan_out': fan_out,
             'fan_in': fan_in,
+            'gather_scatter': gather_scatter,
+            'cyclic': cyclic,
             'peeling': peeling,
             'proximity': proximity,
             'centrality': centrality,
-            'total': total_score
+            'total': total_score,
         }
     
     return wallet_scores

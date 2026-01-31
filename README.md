@@ -34,11 +34,20 @@ numpy
 
 ## Input Data Format
 
-Create a CSV file named `transactions.csv` with the following columns:
+Create a CSV file named `transactions.csv` with one of the following schemas:
+
+**Pipeline schema**
 - `src_wallet`: Source wallet address
 - `dst_wallet`: Destination wallet address
 - `amount`: Transaction amount (float)
 - `timestamp`: UNIX timestamp (seconds)
+
+**Problem-statement schema**
+- `Source_Wallet_ID`
+- `Dest_Wallet_ID`
+- `Timestamp` (seconds or ISO datetime string)
+- `Amount`
+- `Token_Type` (optional)
 
 Example:
 ```csv
@@ -51,8 +60,8 @@ src_wallet,dst_wallet,amount,timestamp
 
 Edit `main.py` to configure:
 ```python
-csv_path = 'transactions.csv'
-illicit_seeds = ["0xABC", "0xDEF"]  # Known illicit wallet addresses
+csv_path = 'data/transactions.csv'
+illicit_file = 'data/illicit_wallets.csv'  # Optional seed list
 ```
 
 ## Usage
@@ -88,6 +97,14 @@ python main.py
 - Checks if senders share common ancestors (depth 2)
 - Score: 0-10 based on common ancestor pairs
 
+### Gather-Scatter Detection
+- Identifies fan-out then fan-in topologies (A → B,C,D → ... → Z)
+- Score: 0-10 based on recombination count
+
+### Cyclic Detection
+- Identifies directed cycles returning to the same wallet
+- Score: 0-10 based on cycle participation
+
 ### Peeling Chain Detection
 - Identifies transaction chains of length ≥4
 - Requires a small "peel" transfer at each hop (gas-fee pattern)
@@ -105,13 +122,15 @@ python main.py
 ## Scoring Formula
 
 ```
-Total Score = (fan_out × 2) + (fan_in × 2) + (peeling × 1.5) + (proximity × 3)
+Total Score = (centrality × 2) + (proximity × 3)
 ```
 
 ## Thresholds
 
 - Fan-out: ≥5 recipients, ≤1 hour window, ±15% amount similarity
 - Fan-in: ≥5 senders, common ancestors within depth 2
+- Gather-scatter: ≥3 fan-out, ≥2 recombinations
+- Cyclic: directed cycle length ≤6
 - Peeling: ≥4 hops, 50-98% decay rate
 - Peeling peel ratio: 0.3-5% of main transfer
 - Peeling delay window: 10 minutes to 72 hours between hops

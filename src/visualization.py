@@ -24,6 +24,11 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
         score = wallet_scores.get(node, {}).get('total', 0)
         centrality = wallet_scores.get(node, {}).get('centrality', 0)
         proximity = wallet_scores.get(node, {}).get('proximity', 0)
+        fan_out = wallet_scores.get(node, {}).get('fan_out', 0)
+        fan_in = wallet_scores.get(node, {}).get('fan_in', 0)
+        gather_scatter = wallet_scores.get(node, {}).get('gather_scatter', 0)
+        cyclic = wallet_scores.get(node, {}).get('cyclic', 0)
+        peeling = wallet_scores.get(node, {}).get('peeling', 0)
         
         if node in illicit_seeds:
             color = '#FF0000'
@@ -48,6 +53,12 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
             f"Centrality: {centrality:.2f}",
             f"Proximity: {proximity:.2f}",
         ]
+        if any([fan_out, fan_in, gather_scatter, cyclic, peeling]):
+            title_parts.append(
+                "Patterns: "
+                f"FO={fan_out}, FI={fan_in}, GS={gather_scatter}, "
+                f"CY={cyclic}, PE={peeling}"
+            )
         title = " | ".join(title_parts)
         
         net.add_node(node, label=node[:8], title=title, color=color, size=size)

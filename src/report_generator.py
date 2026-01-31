@@ -25,6 +25,14 @@ def create_explanation(wallet, scores):
     if scores['fan_in'] > 0:
         parts.append(f"Fan-in aggregation pattern (score: {scores['fan_in']})")
     
+    if scores.get('gather_scatter', 0) > 0:
+        parts.append(
+            f"Gather-scatter topology detected (score: {scores['gather_scatter']})"
+        )
+
+    if scores.get('cyclic', 0) > 0:
+        parts.append(f"Cyclic flow detected (score: {scores['cyclic']})")
+
     if scores['peeling'] > 0:
         parts.append(f"Peeling chain detected (score: {scores['peeling']})")
     
@@ -64,6 +72,11 @@ def generate_report(wallet_scores, illicit_seeds, top_n=20):
             'Score': round(scores['total'], 2),
             'Centrality': round(scores.get('centrality', 0), 2),
             'Proximity': round(scores.get('proximity', 0), 2),
+            'Fan_Out': scores.get('fan_out', 0),
+            'Fan_In': scores.get('fan_in', 0),
+            'Gather_Scatter': scores.get('gather_scatter', 0),
+            'Cyclic': scores.get('cyclic', 0),
+            'Peeling': scores.get('peeling', 0),
             'Explanation': create_explanation(wallet, scores),
             'Is_Seed': '🔴 ILLICIT' if wallet in illicit_seeds else ''
         })

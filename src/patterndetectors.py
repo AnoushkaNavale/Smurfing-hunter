@@ -128,6 +128,78 @@ def detect_fan_in(G, wallet, min_degree=5, ancestor_depth=2):
     return 0
 
 
+def detect_gather_scatter(G, wallet, min_fan_out=3, min_recombine=2):
+    """
+    Detect gather-scatter (fan-out then fan-in) patterns.
+
+    Pattern example: A -> {B,C,D} -> {F,G,H} -> Z
+
+    Args:
+        G: NetworkX DiGraph
+        wallet: Wallet address to analyze
+        min_fan_out: Minimum out-degree to consider scatter
+        min_recombine: Minimum fan-in count to consider gather
+
+    Returns:
+        Count of gather-scatter structures (capped at 10)
+    """
+    if wallet not in G:
+        return 0
+
+    source_hits = 0
+    intermediates = list(G.successors(wallet))
+    if len(intermediates) >= min_fan_out:
+        dest_counts = {}
+        for node in intermediates:
+            for dest in G.successors(node):
+                if dest == wallet:
+                    continue
+                dest_counts[dest] = dest_counts.get(dest, 0) + 1
+
+        source_hits = sum(1 for count in dest_counts.values() if count >= min_recombine)
+
+    sink_hits = 0
+    predecessors = list(G.predecessors(wallet))
+    if len(predecessors) >= min_recombine:
+        ancestor_counts = {}
+        for node in predecessors:
+            for ancestor in G.predecessors(node):
+                if ancestor == wallet:
+                    continue
+                ancestor_counts[ancestor] = ancestor_counts.get(ancestor, 0) + 1
+
+        sink_hits = sum(1 for count in ancestor_counts.values() if count >= min_fan_out)
+
+    return min(source_hits + sink_hits, 10)
+
+
+def detect_cyclic_patterns(G, wallet, max_cycle_length=6):
+    """
+    Detect cyclic laundering patterns that return to the same wallet.
+
+    Args:
+        G: NetworkX DiGraph
+        wallet: Wallet address to analyze
+        max_cycle_length: Max directed cycle length to consider
+
+    Returns:
+        Count of cyclic patterns (capped at 10)
+    """
+    if wallet not in G:
+        return 0
+
+    successors = list(G.successors(wallet))
+    if not successors:
+        return 0
+
+    distances_to_wallet = nx.single_source_shortest_path_length(
+        G.reverse(), wallet, cutoff=max_cycle_length - 1
+    )
+
+    cycle_hits = sum(1 for node in successors if node in distances_to_wallet)
+    return min(cycle_hits, 10)
+
+
 def detect_peeling_chains(
     G,
     wallet,
