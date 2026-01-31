@@ -7,9 +7,14 @@ sys.path.append('src')
 
 from data_loader import load_transactions
 from graph_builder import build_transaction_graph
-from patterndetectors import detect_fan_out, detect_fan_in, detect_peeling_chains, calculate_proximity_score
+from pattern_detectors import (
+    detect_fan_out,
+    detect_fan_in,
+    detect_peeling_chains,
+    calculate_proximity_score,
+)
 from scoring_engine import compute_wallet_scores
-from subgraphextractor import extract_suspicious_subgraph
+from subgraph_extractor import extract_suspicious_subgraph
 from visualization import visualize_laundering_graph
 from report_generator import generate_report
 
