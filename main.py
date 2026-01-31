@@ -2,7 +2,10 @@
 Main execution script for Smurfing-hunter
 """
 
+import os
 import sys
+
+import pandas as pd
 sys.path.append('src')
 
 from data_loader import load_transactions
@@ -19,6 +22,31 @@ from visualization import visualize_laundering_graph
 from report_generator import generate_report
 
 
+DEFAULT_ILLICIT_SEEDS = ["0xABC", "0xDEF"]
+
+
+def load_illicit_seeds(csv_path, fallback):
+    if not os.path.exists(csv_path):
+        print(f"⚠️  Illicit seed file not found at {csv_path}. Using defaults.")
+        return fallback
+
+    try:
+        df = pd.read_csv(csv_path)
+    except Exception as exc:
+        print(f"⚠️  Failed to read {csv_path} ({exc}). Using defaults.")
+        return fallback
+
+    for column in ("Wallet_ID", "wallet_id", "wallet", "address"):
+        if column in df.columns:
+            seeds = df[column].dropna().astype(str).unique().tolist()
+            if seeds:
+                print(f"✅ Loaded {len(seeds)} illicit seeds from {csv_path}")
+                return seeds
+
+    print(f"⚠️  No wallet column found in {csv_path}. Using defaults.")
+    return fallback
+
+
 def main():
     """
     Main execution pipeline
@@ -27,7 +55,8 @@ def main():
     print("=" * 60)
     
     csv_path = 'data/transactions.csv'
-    illicit_seeds = ["0xABC", "0xDEF"]
+    illicit_file = 'data/illicit_wallets.csv'
+    illicit_seeds = load_illicit_seeds(illicit_file, DEFAULT_ILLICIT_SEEDS)
     
     print(f"📂 Loading transactions from {csv_path}...")
     df = load_transactions(csv_path)
@@ -36,6 +65,10 @@ def main():
     print("\n🔗 Building transaction graph...")
     G = build_transaction_graph(df)
     print(f"✅ Graph built: {G.number_of_nodes()} wallets, {G.number_of_edges()} connections")
+
+    if illicit_seeds and all(seed not in G for seed in illicit_seeds):
+        print("⚠️  None of the illicit seeds are present in the graph.")
+        print("   The laundering graph may be empty or minimal.")
     
     print("\n🔍 Computing wallet suspicion scores...")
     wallet_scores = compute_wallet_scores(G, illicit_seeds)
