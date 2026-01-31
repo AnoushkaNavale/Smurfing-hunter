@@ -28,6 +28,11 @@ def create_explanation(wallet, scores):
     if scores['peeling'] > 0:
         parts.append(f"Peeling chain detected (score: {scores['peeling']})")
     
+    if scores.get('centrality', 0) > 7:
+        parts.append(f"High network centrality (score: {scores['centrality']:.2f})")
+    elif scores.get('centrality', 0) > 3:
+        parts.append(f"Moderate centrality (score: {scores['centrality']:.2f})")
+
     if scores['proximity'] > 7:
         parts.append("Direct connection to illicit wallet")
     elif scores['proximity'] > 3:
@@ -57,6 +62,8 @@ def generate_report(wallet_scores, illicit_seeds, top_n=20):
         report_data.append({
             'Wallet': wallet,
             'Score': round(scores['total'], 2),
+            'Centrality': round(scores.get('centrality', 0), 2),
+            'Proximity': round(scores.get('proximity', 0), 2),
             'Explanation': create_explanation(wallet, scores),
             'Is_Seed': '🔴 ILLICIT' if wallet in illicit_seeds else ''
         })

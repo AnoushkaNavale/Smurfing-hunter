@@ -22,6 +22,8 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
     
     for node in subgraph.nodes():
         score = wallet_scores.get(node, {}).get('total', 0)
+        centrality = wallet_scores.get(node, {}).get('centrality', 0)
+        proximity = wallet_scores.get(node, {}).get('proximity', 0)
         
         if node in illicit_seeds:
             color = '#FF0000'
@@ -39,6 +41,9 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
             color = '#90EE90'
             title = f"LOW RISK: {node}<br>Score: {score:.1f}"
             size = 20
+
+        title += f"<br>Centrality: {centrality:.2f}"
+        title += f"<br>Proximity: {proximity:.2f}"
         
         net.add_node(node, label=node[:8], title=title, color=color, size=size)
     
