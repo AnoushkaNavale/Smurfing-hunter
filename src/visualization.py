@@ -31,19 +31,24 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
             size = 40
         elif score > 15:
             color = '#FF6600'
-            title = f"HIGH RISK: {node}<br>Score: {score:.1f}"
+            title = f"HIGH RISK: {node}"
             size = 30
         elif score > 8:
             color = '#FFA500'
-            title = f"MEDIUM RISK: {node}<br>Score: {score:.1f}"
+            title = f"MEDIUM RISK: {node}"
             size = 25
         else:
             color = '#90EE90'
-            title = f"LOW RISK: {node}<br>Score: {score:.1f}"
+            title = f"LOW RISK: {node}"
             size = 20
 
-        title += f"<br>Centrality: {centrality:.2f}"
-        title += f"<br>Proximity: {proximity:.2f}"
+        title_parts = [
+            title,
+            f"Score: {score:.1f}",
+            f"Centrality: {centrality:.2f}",
+            f"Proximity: {proximity:.2f}",
+        ]
+        title = " | ".join(title_parts)
         
         net.add_node(node, label=node[:8], title=title, color=color, size=size)
     
@@ -53,7 +58,7 @@ def visualize_laundering_graph(subgraph, wallet_scores, illicit_seeds, output_fi
         
         width = min(1 + np.log10(total_amount + 1) * 2, 10)
         
-        title = f"{src[:8]} → {dst[:8]}<br>Amount: {total_amount:.4f}<br>Txs: {count}"
+        title = f"{src[:8]} → {dst[:8]} | Amount: {total_amount:.4f} | Txs: {count}"
         
         net.add_edge(src, dst, width=width, title=title, arrows='to')
     
