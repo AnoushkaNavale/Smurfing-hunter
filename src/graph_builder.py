@@ -29,7 +29,8 @@ def build_transaction_graph(df):
         
         G[src][dst]['transactions'].append({
             'amount': amount,
-            'timestamp': timestamp
+            'timestamp': timestamp,
+            'token_type': row.get('token_type')
         })
     
     for src, dst in G.edges():
@@ -38,5 +39,8 @@ def build_transaction_graph(df):
         G[src][dst]['count'] = len(txs)
         G[src][dst]['timestamps'] = [t['timestamp'] for t in txs]
         G[src][dst]['amounts'] = [t['amount'] for t in txs]
+        G[src][dst]['token_types'] = sorted(
+            {str(t['token_type']) for t in txs if t.get('token_type') is not None}
+        )
     
     return G
