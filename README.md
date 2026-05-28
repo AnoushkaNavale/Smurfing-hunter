@@ -1,3 +1,11 @@
+---
+title: Smurfing Hunter
+emoji: 🕵️
+colorFrom: purple
+colorTo: blue
+sdk: docker
+pinned: false
+---
 # Smurfing-hunter: GNN Money Laundering Detection
 
 A lightweight Graph Neural Network system for detecting suspicious wallets in
