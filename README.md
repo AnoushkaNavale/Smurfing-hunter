@@ -8,6 +8,12 @@ pinned: false
 ---
 # Smurfing-hunter: GNN Money Laundering Detection
 
+## Live Demo
+
+Try the deployed app on Hugging Face Spaces:
+
+[Smurfing-hunter Live Demo](https://huggingface.co/spaces/sncdwculbcw/smurfing-hunter)
+
 A lightweight Graph Neural Network system for detecting suspicious wallets in
 blockchain transaction graphs.
 
